@@ -10,5 +10,11 @@
         public int? WorkplaceDemand { get; set; } = 50;
 
         public bool? Enabled { get; set; } = true;
+
+        public bool? ResidentialEnabled { get; set; } = true;
+
+        public bool? CommercialEnabled { get; set; } = true;
+
+        public bool? WorkplaceEnabled { get; set; } = true;
     }
 }
