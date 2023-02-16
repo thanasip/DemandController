@@ -10,7 +10,7 @@
     <RootNamespace>DemandController</RootNamespace>
     <AssemblyName>DemandController</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-	  <LangVersion>8.0</LangVersion>
+    <LangVersion>8.0</LangVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
@@ -56,6 +56,8 @@
     <Compile Include="DemandController.cs" />
     <Compile Include="DemandControllerConfiguration.cs" />
     <Compile Include="DemandControllerExtension.cs" />
+    <Compile Include="DemandControllerThreading.cs" />
+    <Compile Include="DemandControllerUIPanel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
