@@ -14,6 +14,8 @@ namespace DemandController
     public class DemandControllerUIPanel : UIPanel
     {
         private DemandControllerConfiguration _config;
+        private static  UICheckBox _buttonCheck;
+        private static UICheckBox _shortcutCheck;
 
         public override void Start()
         {
@@ -29,6 +31,7 @@ namespace DemandController
                 autoLayoutDirection = LayoutDirection.Vertical;
                 autoLayoutStart = LayoutStart.TopLeft;
                 autoLayoutPadding = new RectOffset(0, 0, 0, 8);
+                absolutePosition = _config.PanelPosition ?? new Vector3(200f, 200f); ;
 
                 var toolbar = CreateToolbar(null, width, 0, 0, 0, 0, LayoutStart.TopLeft);
                 var toolbarL = CreateToolbar(toolbar, width * (2f / 3f), 0, 8, 0, 0, LayoutStart.TopLeft);
@@ -57,8 +60,32 @@ namespace DemandController
                 drag.tooltip = "Drag to move window";
                 drag.size = new Vector2(32f, 32f);
                 drag.target = this;
+                drag.eventClicked += (s, e) =>
+                {
+                    _config.PanelPosition = absolutePosition;
+                    SaveAndRefresh();
+                    Debug.LogWarning("finish panel drag!");
+                };
 
                 var close = CreateCloseButton(toolbarR);
+
+                _buttonCheck = CreateCheckboxGroup("UI Button", "Enable/Disable the UI button",
+                    _config.ButtonEnabled ?? true, "buttonCheck",
+                    (sender, args) =>
+                    {
+                        _config.ButtonEnabled = args;
+                        SaveAndRefresh();
+                    }
+                );
+
+                _shortcutCheck = CreateCheckboxGroup("Shortcut (Ctrl+Alt+D)", "Enable/Disable the keyboard shortcut",
+                    _config.ShortcutEnabled ?? true, "shortcutCheck",
+                    (sender, args) =>
+                    {
+                        _config.ShortcutEnabled = args;
+                        SaveAndRefresh();
+                    }
+                );
 
                 var residentialComponents = CreateCategoryGroup("Residential", "Enable/Disable for Residential", 
                     _config.ResidentialEnabled ?? true, _config.ResidentialDemand ?? 50,
@@ -119,6 +146,11 @@ namespace DemandController
         {
             Configuration<DemandControllerConfiguration>.Save();
             DemandControllerExtension.Refresh();
+            var config = Configuration<DemandControllerConfiguration>.Load();
+            _buttonCheck.isChecked = config.ButtonEnabled ?? true;
+            _shortcutCheck.isChecked = config.ShortcutEnabled ?? true;
+            DemandController._buttonCheck.isChecked = config.ButtonEnabled ?? true;
+            DemandController._shortcutCheck.isChecked = config.ShortcutEnabled ?? true;
         }
 
         private UISlider CreateSlider(UIPanel parent, float startingValue, string name)
@@ -189,8 +221,34 @@ namespace DemandController
             return new CategoryGroup { Slider = slider, Label = sliderN };
         }
 
+        private UICheckBox CreateCheckboxGroup(string title, string tooltip,
+            bool checkDefault, string name, PropertyChangedEventHandler<bool> checkFunc)
+        {
+            var panel = AddUIComponent<UIPanel>();
+            panel.size = new Vector2(width, 0);
+            panel.autoFitChildrenVertically = true;
+            panel.backgroundSprite = "GenericPanel";
+            panel.color = new Color32(60, 60, 60, 255);
+            panel.autoLayout = true;
+            panel.autoLayoutDirection = LayoutDirection.Vertical;
+            panel.autoLayoutStart = LayoutStart.TopLeft;
+            panel.autoLayoutPadding = new RectOffset(0, 0, 0, 0);
+
+            var titlePanel = CreateControlGroup(panel, 4, 4, 4, 4, $"{title}title");
+
+            var check = CreateCheckBox(titlePanel, new Vector2(16f, 16f),
+                "check-checked", "check-unchecked", tooltip,
+                checkDefault, checkFunc
+            );
+
+            var sliderL = titlePanel.AddUIComponent<UILabel>();
+            sliderL.text = title;
+
+            return check;
+        }
+
         private UICheckBox CreateCheckBox (UIComponent parent, Vector2 size, string checkedSprite, 
-            string uncheckedSprite, string tooltip, bool? startingValue, PropertyChangedEventHandler<bool> func)
+            string uncheckedSprite, string tooltip, bool? startingValue, PropertyChangedEventHandler<bool> func, string name = null)
         {
             var checkbox = parent.AddUIComponent<UICheckBox>();
             checkbox.size = size;
@@ -206,6 +264,10 @@ namespace DemandController
             checkbox.isChecked = startingValue ?? true;
             checkbox.clipChildren = true;
             checkbox.eventCheckChanged += func;
+            if (!string.IsNullOrEmpty(name))
+            {
+                checkbox.name = name;
+            }
             return checkbox;
         }
 

@@ -1,4 +1,6 @@
-﻿using ICities;
+﻿using ColossalFramework.UI;
+using ICities;
+using UnityEngine;
 
 namespace DemandController
 {
@@ -15,41 +17,51 @@ namespace DemandController
         private static int  WorkplaceDemand;
         private static bool WorkplaceEnabled;
 
-        public override void OnCreated(IDemand demand)
+        private static bool ButtonEnabled;
+
+        public override int OnCalculateResidentialDemand(int originalDemand)
         {
-            Refresh();
-        }
-
-        public override int OnCalculateResidentialDemand(int originalDemand) => Enabled && ResidentialEnabled
-            ? ResidentialDemand 
-            : base.OnCalculateResidentialDemand(originalDemand);
-
-        public override int OnCalculateCommercialDemand(int originalDemand) => Enabled && CommercialEnabled
-            ? CommercialDemand 
-            : base.OnCalculateCommercialDemand(originalDemand);
-
-        public override int OnCalculateWorkplaceDemand(int originalDemand) => Enabled && WorkplaceEnabled
-            ? WorkplaceDemand 
-            : base.OnCalculateWorkplaceDemand(originalDemand);
-
-        public override int OnUpdateDemand(int lastDemand, int nextDemand, int targetDemand)
-        {
-            if (Enabled)
+            if (Enabled && ResidentialEnabled)
             {
-                if (targetDemand == ResidentialDemand && ResidentialEnabled)
-                    return ResidentialDemand;
-
-                if (targetDemand == CommercialDemand && CommercialEnabled)
-                    return CommercialDemand;
-
-                if (targetDemand == WorkplaceDemand && WorkplaceEnabled)
-                    return WorkplaceDemand;
+                var zoneMgr = ZoneManager.instance;
+                zoneMgr.m_residentialDemand = ResidentialDemand;
+                return ResidentialDemand;
+            } 
+            else
+            {
+                return base.OnCalculateResidentialDemand(originalDemand);
             }
-
-            return base.OnUpdateDemand(lastDemand, nextDemand, targetDemand);
         }
 
-        public static void Refresh()
+        public override int OnCalculateCommercialDemand(int originalDemand)
+        {
+            if (Enabled && CommercialEnabled)
+            {
+                var zoneMgr = ZoneManager.instance;
+                zoneMgr.m_commercialDemand = CommercialDemand;
+                return CommercialDemand;
+            }
+            else
+            {
+                return base.OnCalculateCommercialDemand(originalDemand);
+            }
+        }
+
+        public override int OnCalculateWorkplaceDemand(int originalDemand)
+        {
+            if (Enabled && WorkplaceEnabled)
+            {
+                var zoneMgr = ZoneManager.instance;
+                zoneMgr.m_workplaceDemand = WorkplaceDemand;
+                return WorkplaceDemand;
+            }
+            else
+            {
+                return base.OnCalculateWorkplaceDemand(originalDemand);
+            }
+        }
+
+        public static void Refresh(bool first = false)
         {
             var config = Configuration<DemandControllerConfiguration>.Load();
             Enabled = config.Enabled ?? false;
@@ -62,6 +74,25 @@ namespace DemandController
 
             WorkplaceDemand = config.WorkplaceDemand ?? 50;
             WorkplaceEnabled = config.WorkplaceEnabled ?? true;
+
+            ButtonEnabled = config.ButtonEnabled ?? true;
+
+            Debug.LogWarning("HERE");
+
+            if (!first) { 
+                if (!ButtonEnabled)
+                {
+                    var view = UIView.GetAView();
+                    var comp = view.FindUIComponent("DCUIB");
+                    comp.ToggleOff();
+                }
+                else
+                {
+                    var view = UIView.GetAView();
+                    var comp = view.FindUIComponent("DCUIB");
+                    comp.ToggleOn();
+                }
+            }
         }
     }
 }
