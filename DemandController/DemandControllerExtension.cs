@@ -6,30 +6,25 @@ namespace DemandController
     {
         private static bool Enabled;
 
-        private static int  ResidentialDemand;
+        private static int ResidentialDemand;
         private static bool ResidentialEnabled;
 
-        private static int  CommercialDemand;
+        private static int CommercialDemand;
         private static bool CommercialEnabled;
 
-        private static int  WorkplaceDemand;
+        private static int WorkplaceDemand;
         private static bool WorkplaceEnabled;
 
-        public override void OnCreated(IDemand demand)
-        {
-            Refresh();
-        }
-
         public override int OnCalculateResidentialDemand(int originalDemand) => Enabled && ResidentialEnabled
-            ? ResidentialDemand 
+            ? SetResidentialDemand()
             : base.OnCalculateResidentialDemand(originalDemand);
 
         public override int OnCalculateCommercialDemand(int originalDemand) => Enabled && CommercialEnabled
-            ? CommercialDemand 
+            ? SetCommercialDemand()
             : base.OnCalculateCommercialDemand(originalDemand);
 
-        public override int OnCalculateWorkplaceDemand(int originalDemand) => Enabled && WorkplaceEnabled
-            ? WorkplaceDemand 
+        public override int OnCalculateWorkplaceDemand(int originalDemand) => Enabled && WorkplaceEnabled 
+            ? SetWorkplaceDemand()
             : base.OnCalculateWorkplaceDemand(originalDemand);
 
         public override int OnUpdateDemand(int lastDemand, int nextDemand, int targetDemand)
@@ -37,31 +32,50 @@ namespace DemandController
             if (Enabled)
             {
                 if (targetDemand == ResidentialDemand && ResidentialEnabled)
-                    return ResidentialDemand;
-
+                    return SetResidentialDemand();
                 if (targetDemand == CommercialDemand && CommercialEnabled)
-                    return CommercialDemand;
-
+                    return SetCommercialDemand();
                 if (targetDemand == WorkplaceDemand && WorkplaceEnabled)
-                    return WorkplaceDemand;
+                    return SetWorkplaceDemand();
             }
 
             return base.OnUpdateDemand(lastDemand, nextDemand, targetDemand);
         }
 
+        private int SetResidentialDemand()
+        {
+            var zoneMgr = ZoneManager.instance;
+            zoneMgr.m_residentialDemand = ResidentialDemand;
+            return ResidentialDemand;
+        }
+
+        private int SetCommercialDemand()
+        {
+            var zoneMgr = ZoneManager.instance;
+            zoneMgr.m_commercialDemand = CommercialDemand;
+            return CommercialDemand;
+        }
+
+        private int SetWorkplaceDemand()
+        {
+            var zoneMgr = ZoneManager.instance;
+            zoneMgr.m_workplaceDemand = WorkplaceDemand;
+            return WorkplaceDemand;
+        }
+
         public static void Refresh()
         {
             var config = Configuration<DemandControllerConfiguration>.Load();
-            Enabled = config.Enabled ?? false;
+            Enabled = config.Enabled;
 
-            ResidentialDemand = config.ResidentialDemand ?? 50;
-            ResidentialEnabled = config.ResidentialEnabled ?? true;
+            ResidentialDemand = config.ResidentialDemand;
+            ResidentialEnabled = config.ResidentialEnabled;
 
-            CommercialDemand = config.CommercialDemand ?? 50;
-            CommercialEnabled = config.CommercialEnabled ?? true;
+            CommercialDemand = config.CommercialDemand;
+            CommercialEnabled = config.CommercialEnabled;
 
-            WorkplaceDemand = config.WorkplaceDemand ?? 50;
-            WorkplaceEnabled = config.WorkplaceEnabled ?? true;
+            WorkplaceDemand = config.WorkplaceDemand;
+            WorkplaceEnabled = config.WorkplaceEnabled;
         }
     }
 }

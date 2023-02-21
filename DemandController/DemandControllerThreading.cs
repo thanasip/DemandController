@@ -4,24 +4,14 @@ using UnityEngine;
 
 namespace DemandController
 {
-    public static class UIComponentExtensions
-    {
-        public static void ToggleOn(this UIComponent comp)
-        {
-            comp.isEnabled = true;
-            comp.isVisible = true;
-        }
-
-        public static void ToggleOff(this UIComponent comp)
-        {
-            comp.isEnabled = false;
-            comp.isVisible = false;
-        }
-    }
-
     public class DemandControllerThreading : ThreadingExtensionBase
     {
-        private bool _lock = false;
+        private DemandControllerConfiguration _config;
+
+        public override void OnCreated(IThreading threading)
+        {
+            _config = Configuration<DemandControllerConfiguration>.Load();
+        }
 
         public override void OnUpdate(float realTimeDelta, float simulationTimeDelta)
         { 
@@ -29,34 +19,30 @@ namespace DemandController
                 (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) &&
                 (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) &&
                 Input.GetKeyUp(KeyCode.D) &&
-                !_lock
+                (_config.ShortcutEnabled)
             )
             {
-                _lock = true;
-
-                var view = UIView.GetAView();
-                var comp = view.FindUIComponent("DemandControllerUIPanel", typeof(DemandControllerUIPanel));
-
-                if (comp == null)
-                {
-                    comp = view.AddUIComponent(typeof(DemandControllerUIPanel));
-                    comp.ToggleOff();
-                }
-                else
-                {
-                    Debug.LogWarning(comp);
-                }
-
-                if (!comp.isVisible)
-                    comp.ToggleOn();
-                else
-                    comp.ToggleOff();
-
+                ToggleDemandControllerUI();
             }
-            else
+        }
+
+        public static void ToggleDemandControllerUI()
+        {
+            var comp = GetDemandControllerPanel();
+
+            if (comp != null)
             {
-                _lock = false;
+                if (!comp.isVisible)
+                    comp.Show();
+                else
+                    comp.Hide();
             }
+        }
+
+        private static UIComponent GetDemandControllerPanel()
+        {
+            var view = UIView.GetAView();
+            return view.FindUIComponent("DemandControllerUIPanel", typeof(DemandControllerUIPanel));
         }
     }
 }

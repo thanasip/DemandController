@@ -57,6 +57,7 @@
     <Compile Include="DemandControllerConfiguration.cs" />
     <Compile Include="DemandControllerExtension.cs" />
     <Compile Include="DemandControllerThreading.cs" />
+    <Compile Include="DemandControllerUIButton.cs" />
     <Compile Include="DemandControllerUIPanel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
