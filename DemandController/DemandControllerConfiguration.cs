@@ -23,21 +23,7 @@ namespace DemandController
 
         public bool? ShortcutEnabled { get; set; } = true;
 
-        private static int? _screenHeight = 1080;
-        public int? ScreenHeight 
-        { 
-            get
-            {
-                return _screenHeight;
-            } 
-            
-            set
-            {
-                _screenHeight = value;
-            } 
-        }
-
-        public Vector3? ButtonPosition { get; set; } = new Vector3(200f, _screenHeight ?? 1000f);
+        public Vector3? ButtonPosition { get; set; } = new Vector3(200f, 200f);
 
         public Vector3? PanelPosition { get; set; } = new Vector3(200f, 200f);
     }

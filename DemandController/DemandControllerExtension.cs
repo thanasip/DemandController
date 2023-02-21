@@ -17,7 +17,6 @@ namespace DemandController
         private static int  WorkplaceDemand;
         private static bool WorkplaceEnabled;
 
-        private static bool ButtonEnabled;
 
         public override int OnCalculateResidentialDemand(int originalDemand)
         {
@@ -61,7 +60,24 @@ namespace DemandController
             }
         }
 
-        public static void Refresh(bool first = false)
+        public override int OnUpdateDemand(int lastDemand, int nextDemand, int targetDemand)
+        {
+            if (Enabled)
+            {
+                if (targetDemand == ResidentialDemand && ResidentialEnabled)
+                    return ResidentialDemand;
+
+                if (targetDemand == CommercialDemand && CommercialEnabled)
+                    return CommercialDemand;
+
+                if (targetDemand == WorkplaceDemand && WorkplaceEnabled)
+                    return WorkplaceDemand;
+            }
+
+            return base.OnUpdateDemand(lastDemand, nextDemand, targetDemand);
+        }
+
+        public static void Refresh()
         {
             var config = Configuration<DemandControllerConfiguration>.Load();
             Enabled = config.Enabled ?? false;
@@ -74,25 +90,6 @@ namespace DemandController
 
             WorkplaceDemand = config.WorkplaceDemand ?? 50;
             WorkplaceEnabled = config.WorkplaceEnabled ?? true;
-
-            ButtonEnabled = config.ButtonEnabled ?? true;
-
-            Debug.LogWarning("HERE");
-
-            if (!first) { 
-                if (!ButtonEnabled)
-                {
-                    var view = UIView.GetAView();
-                    var comp = view.FindUIComponent("DCUIB");
-                    comp.ToggleOff();
-                }
-                else
-                {
-                    var view = UIView.GetAView();
-                    var comp = view.FindUIComponent("DCUIB");
-                    comp.ToggleOn();
-                }
-            }
         }
     }
 }

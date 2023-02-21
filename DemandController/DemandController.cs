@@ -1,42 +1,63 @@
 ﻿using ColossalFramework.UI;
 using ICities;
-using static DemandController.DemandControllerUIPanel;
 
 namespace DemandController
 {
     public class DemandController : LoadingExtensionBase, IUserMod
     {
-        public static UICheckBox _buttonCheck;
-        public static UICheckBox _shortcutCheck;
-
+        private DemandControllerConfiguration _config;
         public string Name => "Demand Controller";
 
         public string Description => "Allows fine-grained control of RCW demand";
 
         public void OnSettingsUI(UIHelperBase helper)
         {
-            var config = Configuration<DemandControllerConfiguration>.Load();
-            var buttonEnabled = config.ButtonEnabled ?? true;
-            var shortcutEnabled = config.ShortcutEnabled ?? true;
+            _config = Configuration<DemandControllerConfiguration>.Load();
+            var buttonEnabled = _config.ButtonEnabled ?? true;
+            var shortcutEnabled = _config.ShortcutEnabled ?? true;
 
             var masterGroup = helper.AddGroup("Settings");
-            _buttonCheck = (UICheckBox)masterGroup.AddCheckbox("Button enabled", buttonEnabled, val =>
+            masterGroup.AddCheckbox("Button enabled", buttonEnabled, val =>
             {
-                config.ButtonEnabled = val;
+                _config.ButtonEnabled = val;
+                ToggleDemandControllerButton();
                 SaveAndRefresh();
             });
 
-            _shortcutCheck = (UICheckBox)masterGroup.AddCheckbox("Keyboard shortcut (Ctrl+Atl+D) enabled", shortcutEnabled, val =>
+            masterGroup.AddCheckbox("Keyboard shortcut (Ctrl+Atl+D) enabled", shortcutEnabled, val =>
             {
-                config.ShortcutEnabled = val;
+                _config.ShortcutEnabled = val;
                 SaveAndRefresh();
             });
         }
 
+        private void ToggleDemandControllerButton()
+        {
+            var comp = UIView.Find("DCUIB");
+
+            if (comp == null)
+            {
+                var view = UIView.GetAView();
+                view.AddUIComponent(typeof(DemandControllerUIButton));
+            }
+            else
+            {
+                UIView.DestroyImmediate(comp);
+            }
+        }
+
         public override void OnLevelLoaded(LoadMode mode)
         {
-            DemandControllerThreading.Init();
-            DemandControllerExtension.Refresh(true);
+            _config = Configuration<DemandControllerConfiguration>.Load();
+            var view = UIView.GetAView();
+            view.AddUIComponent(typeof(DemandControllerUIButton));
+            view.AddUIComponent(typeof(DemandControllerUIPanel));
+        }
+
+        public static void SaveAndRefresh()
+        {
+            Configuration<DemandControllerConfiguration>.Save();
+            DemandControllerExtension.Refresh();
         }
     }
 }

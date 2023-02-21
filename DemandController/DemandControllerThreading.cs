@@ -21,22 +21,23 @@ namespace DemandController
 
     public class DemandControllerThreading : ThreadingExtensionBase
     {
+        private DemandControllerConfiguration _config;
         private bool _lock = false;
-        private static bool _shortcutEnable = false;
-        private static DemandControllerConfiguration _config;
-        private static UIComponent _panel;
-        private static UIView _view;
+        private bool _shortcutEnable = false;
+
+        public override void OnCreated(IThreading threading)
+        {
+            _config = Configuration<DemandControllerConfiguration>.Load();
+            _shortcutEnable = _config.ShortcutEnabled ?? true;
+        }
 
         public override void OnUpdate(float realTimeDelta, float simulationTimeDelta)
         {
-            _shortcutEnable = _config.ShortcutEnabled ?? true;
-
             if (
                 (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) &&
                 (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) &&
                 Input.GetKeyUp(KeyCode.D) &&
                 !_lock && _shortcutEnable
-
             )
             {
                 _lock = true;
@@ -48,25 +49,18 @@ namespace DemandController
             }
         }
 
-        public static void Init()
-        {
-            _config = Configuration<DemandControllerConfiguration>.Load();
-            _view = UIView.GetAView();
-            _view.AddUIComponent(typeof(DemandControllerUIButton));
-            _panel = _view.AddUIComponent(typeof(DemandControllerUIPanel));
-            _panel.ToggleOff();
-            _config.ScreenHeight = _view.fixedHeight;
-            Configuration<DemandControllerConfiguration>.Save();
-        }
-
         public static void ToggleDemandController()
         {
-            var comp = _view.FindUIComponent("DemandControllerUIPanel", typeof(DemandControllerUIPanel));
+            var comp = UIView.Find("DemandControllerUIPanel", typeof(DemandControllerUIPanel));
 
-            if (!comp.isVisible)
-                comp.ToggleOn();
-            else
-                comp.ToggleOff();
+            if (comp == null)
+            {
+                var view = UIView.GetAView();
+                view.AddUIComponent(typeof(DemandControllerUIPanel));
+            } else
+            {
+                UIView.DestroyImmediate(comp);
+            }
         }
     }
 }
