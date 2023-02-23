@@ -51,6 +51,7 @@ namespace DemandController
                 dragSprite.spriteName = "buttonresize";
                 dragSprite.size = new Vector2(32f, 32f);
                 drag.tooltip = "Drag to move window";
+                drag.bringTooltipToFront = true;
                 drag.size = new Vector2(32f, 32f);
                 drag.target = this;
                 drag.eventClicked += (s, e) =>
@@ -197,6 +198,7 @@ namespace DemandController
             var checkbox = parent.AddUIComponent<UICheckBox>();
             checkbox.size = size;
             checkbox.tooltip = tooltip;
+            checkbox.bringTooltipToFront = true;
             var masterUncheckedSprite = checkbox.AddUIComponent<UISprite>();
             masterUncheckedSprite.spriteName = uncheckedSprite;
             masterUncheckedSprite.size = size;
@@ -249,6 +251,7 @@ namespace DemandController
             close.pressedBgSprite = "buttonclosepressed";
             close.pressedFgSprite = "buttonclosepressed";
             close.tooltip = "Close window";
+            close.bringTooltipToFront = true;
             close.eventClicked += (sender, args) =>
             {
                 var view = UIView.GetAView();

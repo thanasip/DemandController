@@ -42,21 +42,21 @@ namespace DemandController
             return base.OnUpdateDemand(lastDemand, nextDemand, targetDemand);
         }
 
-        private int SetResidentialDemand()
+        private static int SetResidentialDemand()
         {
             var zoneMgr = ZoneManager.instance;
             zoneMgr.m_residentialDemand = ResidentialDemand;
             return ResidentialDemand;
         }
 
-        private int SetCommercialDemand()
+        private static int SetCommercialDemand()
         {
             var zoneMgr = ZoneManager.instance;
             zoneMgr.m_commercialDemand = CommercialDemand;
             return CommercialDemand;
         }
 
-        private int SetWorkplaceDemand()
+        private static int SetWorkplaceDemand()
         {
             var zoneMgr = ZoneManager.instance;
             zoneMgr.m_workplaceDemand = WorkplaceDemand;
@@ -76,6 +76,16 @@ namespace DemandController
 
             WorkplaceDemand = config.WorkplaceDemand;
             WorkplaceEnabled = config.WorkplaceEnabled;
+
+            if (Enabled && ZoneManager.instance != null && DemandController._loaded)
+            {
+                if (ResidentialEnabled)
+                    SetResidentialDemand();
+                if (CommercialEnabled)
+                    SetCommercialDemand();
+                if (WorkplaceEnabled)
+                    SetWorkplaceDemand();
+            }
         }
     }
 }

@@ -23,7 +23,7 @@ namespace DemandController
             hoveredColor = new Color32(250, 250, 250, 255);
             relativePosition = _config.ButtonPosition;
             size = new Vector3(32f, 32f);
-            bringTooltipToFront = true;
+            
             BringToFront();
             eventClicked += (s, e) =>
             {
@@ -41,11 +41,26 @@ namespace DemandController
                 }
             };
 
+            eventMouseUp += (s, e) =>
+            {
+                if (e.buttons == UIMouseButton.Right)
+                {
+                    ConfirmPanel.ShowModal("Warning!", "Reset Button and Panel positions?", (sender, result) =>
+                    {
+                        if (result == 1)
+                        {
+                            DemandController.ResetUI();
+                        }
+                    });
+                }
+            };
+
             var drag = AddUIComponent<UIDragHandle>();
             drag.size = new Vector3(32f, 32f);
             drag.relativePosition = Vector3.zero;
             drag.target = this;
             drag.tooltip = "Open Demand Controller";
+            drag.bringTooltipToFront = true;
             drag.eventDragStart += (s, e) =>
             {
                 Debug.LogWarning("start drag!");
