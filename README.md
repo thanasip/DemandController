@@ -11,7 +11,7 @@ To use this code:
 0. Make sure you're unsubscribed from the workshop version
 1. Clone the code
 2. Build the project
-3. Copy the output DLL to the AppData mod folder
+3. Copy the output DLL to the AppData mod folder (the VS solution _should_ do this)
 4. Run the game
 
 # Contributing
